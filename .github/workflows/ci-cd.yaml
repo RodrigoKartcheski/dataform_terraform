@@ -18,9 +18,9 @@ jobs:
       - name: Merge ws_teste into development
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Use um token com permissão de push
+          token: ${{ secrets.GITHUB_TOKEN }}  # Se necessário, substitua por um PAT com permissões `repo`
           commit-message: "Merge ws_teste into development"
           title: "Merge ws_teste into development"
           body: "Automated merge of ws_teste into development"
           base: development  # Branch de destino
-          head: ws_teste  # Branch de origem
+          branch: ws_teste   # Branch de origem
