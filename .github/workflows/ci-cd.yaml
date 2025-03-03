@@ -41,6 +41,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Check active user
+        run: |
+          gcloud auth list
+          gcloud config list
+
+      - name: Authenticate with Google Cloud
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" > /tmp/gcp-key.json
+          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
+          gcloud config set project <SEU_PROJETO_GCP>
+
       - name: Copy files from qa/ to Google Cloud Storage
         run: |
           gsutil -m cp -r qa/* gs://bucket-6133-20241008_2/cicdqa/
