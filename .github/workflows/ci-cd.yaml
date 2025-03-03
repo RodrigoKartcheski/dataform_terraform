@@ -48,19 +48,22 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: seu-usuario/dataform  # 🔹 Substitua pelo repositório correto
-          token: ${{ secrets.GITHUB_TOKEN }}  # 🔹 OU crie um token pessoal para ter permissões de escrita
+          token: ${{ secrets.GITHUB_TOKEN }}  # 🔹 Usa o token de acesso para permissões
           path: dataform_repo  # Faz o checkout em uma pasta separada
 
       - name: Copiar arquivos do diretório "qa" para o repositório "dataform"
         run: |
           cp -r qa/* dataform_repo/  # Copia todos os arquivos do qa para o repositório "dataform"
 
+      - name: Configurar nome de usuário e email para o commit
+        run: |
+          cd dataform_repo
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
       - name: Commit e Push das mudanças para o repositório "dataform"
         run: |
           cd dataform_repo
-          #git config user.name "GitHub Actions"
-          #git config user.email "actions@github.com"
-          
           git add .
           git commit -m "Atualizando arquivos do diretório 'qa' via CI/CD"
           git push origin main  # 🔹 Altere para a branch correta do repositório destino
