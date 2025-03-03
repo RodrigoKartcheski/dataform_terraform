@@ -1,6 +1,6 @@
 name: CI/CD Pipeline
 
-permissions: write-all # Permite que o GitHub Actions faça alterações nos arquivos do repositório.
+permissions: write-all  # settings >> security >> Secretes and Variables >> Actions. Permite que o GitHub Actions faça alterações nos arquivos do repositório.
 
 
 on:
@@ -51,23 +51,23 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: RodrigoKartcheski/dataform  # Substitua pelo repositório correto
-          token: ${{ secrets.PAT_TOKEN }}  # Usa o token de acesso (PAT) para permissões no repositório de destino
-          path: temp_repo  # Nome sugerido para o repositório temporário
+          token: ${{ secrets.GITHUB_TOKEN }}  # Usa o token de acesso para permissões
+          path: dataform_repo  # Faz o checkout em uma pasta separada
           ref: main  # Garante que a branch 'main' seja a branch que será baixada
 
       - name: Copiar arquivos do diretório "qa" para o repositório "dataform"
         run: |
-          cp -r qa/* temp_repo/  # Copia todos os arquivos do qa para o repositório temporário
+          cp -r qa/* dataform_repo/  # Copia todos os arquivos do qa para o repositório "dataform"
 
       - name: Configurar nome de usuário e email para o commit
         run: |
-          cd temp_repo
+          cd dataform_repo
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-
+        
       - name: Commit e Push das mudanças para o repositório "dataform"
         run: |
-          cd temp_repo
+          cd dataform_repo
           git add .
           git commit -m "Atualizando arquivos do diretório 'qa' via CI/CD"
           git push origin main  # Altere para a branch correta do repositório destino, se necessário
