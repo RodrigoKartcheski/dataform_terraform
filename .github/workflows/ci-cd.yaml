@@ -1,7 +1,7 @@
 name: CI/CD Pipeline
 
 permissions:
-  contents: write  # Permite que o GitHub Actions faça alterações nos arquivos do repositório
+  contents: write  # Permite que o GitHub Actions faça alterações nos arquivos do repositório.
 
 
 on:
