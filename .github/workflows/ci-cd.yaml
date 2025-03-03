@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: RodrigoKartcheski/dataform  # Substitua pelo repositório correto
-          token: ${{ secrets.GITHUB_TOKEN }}  # Usa o token de acesso para permissões
+          token: ${{ secrets.PAT_TOKEN }}  # Usa o token de acesso (PAT) para permissões no repositório de destino
           path: dataform_repo  # Faz o checkout em uma pasta separada
           ref: main  # Garante que a branch 'main' seja a branch que será baixada
 
@@ -64,11 +64,6 @@ jobs:
           cd dataform_repo
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-        
-      - name: Configurar remote para push com GITHUB_TOKEN
-        run: |
-          cd dataform_repo
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/RodrigoKartcheski/dataform.git
 
       - name: Commit e Push das mudanças para o repositório "dataform"
         run: |
