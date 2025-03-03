@@ -64,6 +64,11 @@ jobs:
           cd dataform_repo
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+        
+      - name: Configurar remote para push com GITHUB_TOKEN
+        run: |
+          cd dataform_repo
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/RodrigoKartcheski/dataform.git
 
       - name: Commit e Push das mudanças para o repositório "dataform"
         run: |
