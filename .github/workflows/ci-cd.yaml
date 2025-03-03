@@ -34,34 +34,37 @@ jobs:
           git merge origin/ws_teste --no-ff -m "Merge ws_teste into development"
           git push origin development
 
-  sync_to_dataform:
-    runs-on: ubuntu-latest
-    needs: build  # Garante que só roda após o job "build" terminar com sucesso
+sync_to_dataform:
+  runs-on: ubuntu-latest
+  needs: build  # Garante que só roda após o job "build" terminar com sucesso
 
-    steps:
-      - name: Checkout código do repositório atual
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Garante que todo o histórico está disponível
+  steps:
+    - name: Checkout código do repositório atual
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Garante que todo o histórico está disponível
 
-      - name: Checkout do repositório de destino (dataform)
-        uses: actions/checkout@v2
-        with:
-          repository: seu-usuario/dataform  # 🔹 Substitua pelo repositório correto
-          token: ${{ secrets.GITHUB_TOKEN }}  # 🔹 OU crie um token pessoal para ter permissões de escrita
-          path: dataform_repo  # Faz o checkout em uma pasta separada
+    - name: Checkout do repositório de destino (dataform)
+      uses: actions/checkout@v2
+      with:
+        repository: seu-usuario/dataform  # 🔹 Substitua pelo repositório correto
+        token: ${{ secrets.GITHUB_TOKEN }}  # 🔹 Usa o token de acesso para permissões
+        path: dataform_repo  # Faz o checkout em uma pasta separada
 
-      - name: Copiar arquivos do diretório "qa" para o repositório "dataform"
-        run: |
-          cp -r qa/* dataform_repo/  # Copia todos os arquivos do qa para o repositório "dataform"
+    - name: Copiar arquivos do diretório "qa" para o repositório "dataform"
+      run: |
+        cp -r qa/* dataform_repo/  # Copia todos os arquivos do qa para o repositório "dataform"
 
-      - name: Commit e Push das mudanças para o repositório "dataform"
-        run: |
-          cd dataform_repo
-          #git config user.name "GitHub Actions"
-          #git config user.email "actions@github.com"
-          
-          git add .
-          git commit -m "Atualizando arquivos do diretório 'qa' via CI/CD"
-          git push origin main  # 🔹 Altere para a branch correta do repositório destino
+    - name: Configurar nome de usuário e email para o commit
+      run: |
+        cd dataform_repo
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+
+    - name: Commit e Push das mudanças para o repositório "dataform"
+      run: |
+        cd dataform_repo
+        git add .
+        git commit -m "Atualizando arquivos do diretório 'qa' via CI/CD"
+        git push origin main  # 🔹 Altere para a branch correta do repositório destino
 
