@@ -18,8 +18,8 @@ jobs:
       - name: Merge ws_teste into development
         run: |
           # Configura o repositório e as credenciais para o git
-          #git config user.name "GitHub Actions"
-          #git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           
           # Faz checkout da branch de destino (development)
           git checkout development
