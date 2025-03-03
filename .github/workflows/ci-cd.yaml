@@ -13,8 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Adicione aqui as etapas de build, teste e outras verificações que você precisa realizar
-
       - name: Merge to development
         uses: peter-evans/create-pull-request@v3
         with:
@@ -22,5 +20,5 @@ jobs:
           commit-message: Merge ws_teste into development
           title: 'Merge ws_teste to development'
           body: 'Automated merge of ws_teste into development'
-          base: development
-          head: ws_teste
+          base: development  # Define para qual branch vai o PR
+          branch: ws_teste    # Define de qual branch o PR será criado
