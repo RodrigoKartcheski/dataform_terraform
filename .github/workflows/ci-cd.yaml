@@ -1,6 +1,6 @@
 name: CI/CD Pipeline
 
-permissions: write-all  # settings >> security >> Secretes and Variables >> Actions >> PAT_TOKEN. Permite que o GitHub Actions faça alterações nos arquivos do repositório.
+permissions: write-all  # settings >> security >> Secretes and Variables >> Actions >> PAT_TOKEN. Permite que o GitHub Actions faça alterações nos arquivos do repositório
 
 
 on:
