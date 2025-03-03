@@ -55,13 +55,17 @@ jobs:
           path: temp_repo  # Nome sugerido para o repositório temporário
           ref: main  # Garante que a branch 'main' seja a branch que será baixada
 
-      - name: Copiar arquivos do diretório "qa" para o repositório "dataform"
+      - name: Criar pasta "qa" no repositório de destino
         run: |
-          cp -r qa/* temp_repo/  # Copia todos os arquivos do qa para o repositório temporário
+          mkdir -p temp_repo/qa  # Garante que a pasta "qa" exista
+
+      - name: Copiar arquivos do diretório "qa" para o repositório "dataform/qa"
+        run: |
+          cp -r qa/* temp_repo/qa/  # Copia os arquivos para temp_repo/qa/
 
       - name: Listar arquivos copiados para o repositório temporário
         run: |
-          ls -la temp_repo/  # Verifica se os arquivos foram copiados corretamente
+          ls -la temp_repo/qa  # Verifica se os arquivos foram copiados corretamente para temp_repo/qa
 
       - name: Verificar status do repositório
         run: |
