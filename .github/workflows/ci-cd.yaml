@@ -47,9 +47,10 @@ jobs:
       - name: Checkout do repositório de destino (dataform)
         uses: actions/checkout@v2
         with:
-          repository: seu-usuario/dataform  # 🔹 Substitua pelo repositório correto
-          token: ${{ secrets.GITHUB_TOKEN }}  # 🔹 Usa o token de acesso para permissões
+          repository: seu-usuario/dataform  # Substitua pelo repositório correto
+          token: ${{ secrets.GITHUB_TOKEN }}  # Usa o token de acesso para permissões
           path: dataform_repo  # Faz o checkout em uma pasta separada
+          ref: main  # Garante que a branch 'main' seja a branch que será baixada
 
       - name: Copiar arquivos do diretório "qa" para o repositório "dataform"
         run: |
@@ -66,5 +67,4 @@ jobs:
           cd dataform_repo
           git add .
           git commit -m "Atualizando arquivos do diretório 'qa' via CI/CD"
-          git push origin main  # 🔹 Altere para a branch correta do repositório destino
-
+          git push origin main  # Altere para a branch correta do repositório destino, se necessário
