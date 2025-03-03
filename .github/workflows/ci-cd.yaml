@@ -15,6 +15,16 @@ jobs:
         with:
           fetch-depth: 0  # Garante que todo o histórico está disponível
 
+      - name: Check if 'descriptions' exists in *.sqlx files
+        run: |
+          # Verifica se a palavra 'descriptions' existe em algum arquivo .sqlx no repositório
+          if grep -r "descriptions" --include="*.sqlx" .; then
+            echo "A palavra 'descriptions' foi encontrada nos arquivos sqlx."
+          else
+            echo "A palavra 'descriptions' não foi encontrada nos arquivos sqlx."
+            exit 1  # Falha o pipeline se não encontrar a palavra
+          fi
+
       - name: Merge ws_teste into development
         run: |
           # Configura o repositório e as credenciais para o git
@@ -32,3 +42,4 @@ jobs:
 
           # Empurra as mudanças para o repositório remoto
           git push origin development
+
