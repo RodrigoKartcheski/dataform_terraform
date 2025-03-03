@@ -34,24 +34,34 @@ jobs:
           git merge origin/ws_teste --no-ff -m "Merge ws_teste into development"
           git push origin development
 
-  upload-to-gcs:
+  sync_to_dataform:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  # Garante que só roda após o job "build" terminar com sucesso
+
     steps:
-      - name: Checkout code
+      - name: Checkout código do repositório atual
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Garante que todo o histórico está disponível
 
-      - name: Check active user
-        run: |
-          gcloud auth list
-          gcloud config list
+      - name: Checkout do repositório de destino (dataform)
+        uses: actions/checkout@v2
+        with:
+          repository: seu-usuario/dataform  # 🔹 Substitua pelo repositório correto
+          token: ${{ secrets.GITHUB_TOKEN }}  # 🔹 OU crie um token pessoal para ter permissões de escrita
+          path: dataform_repo  # Faz o checkout em uma pasta separada
 
-      - name: Authenticate with Google Cloud
+      - name: Copiar arquivos do diretório "qa" para o repositório "dataform"
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > /tmp/gcp-key.json
-          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
-          gcloud config set project <SEU_PROJETO_GCP>
+          cp -r qa/* dataform_repo/  # Copia todos os arquivos do qa para o repositório "dataform"
 
-      - name: Copy files from qa/ to Google Cloud Storage
+      - name: Commit e Push das mudanças para o repositório "dataform"
         run: |
-          gsutil -m cp -r qa/* gs://bucket-6133-20241008_2/cicdqa/
+          cd dataform_repo
+          #git config user.name "GitHub Actions"
+          #git config user.email "actions@github.com"
+          
+          git add .
+          git commit -m "Atualizando arquivos do diretório 'qa' via CI/CD"
+          git push origin main  # 🔹 Altere para a branch correta do repositório destino
+
