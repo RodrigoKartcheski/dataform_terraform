@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - ws_teste
+      - development
 
 jobs:
   build:
@@ -13,12 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Merge to development
+      - name: Merge development into main
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Merge ws_teste into development
-          title: 'Merge ws_teste to development'
-          body: 'Automated merge of ws_teste into development'
-          base: development  # Define para qual branch vai o PR
-          branch: ws_teste    # Define de qual branch o PR será criado
+          commit-message: Merge development into main
+          title: 'Merge development to main'
+          body: 'Automated merge of development into main'
+          base: main      # Para onde vai o PR
+          head: development  # De onde vêm as mudanças
