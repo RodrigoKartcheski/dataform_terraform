@@ -12,13 +12,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Garante que todo o histórico está disponível
 
-      - name: Merge to development
+      - name: Merge ws_teste into development
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Merge ws_teste into development
-          title: 'Merge ws_teste to development'
-          body: 'Automated merge of ws_teste into development'
-          base: development  # Define para qual branch vai o PR
-          branch: ws_teste    # Define de qual branch o PR será criado
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Use um token com permissão de push
+          commit-message: "Merge ws_teste into development"
+          title: "Merge ws_teste into development"
+          body: "Automated merge of ws_teste into development"
+          base: development  # Branch de destino
+          head: ws_teste  # Branch de origem
