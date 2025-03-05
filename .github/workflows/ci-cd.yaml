@@ -27,6 +27,16 @@ jobs:
             exit 1
           fi
 
+      - name: Install sqlglot
+        run: pip install sqlglot
+
+      - name: Validate SQLX files with sqlglot
+        run: |
+          for file in $(find . -name "*.sqlx"); do
+            echo "Validating $file"
+            cat "$file" | sqlglot transpile --read bigquery --pretty || exit 1
+          done
+
       - name: Merge ws_teste into development
         run: |
           git config user.name "GitHub Actions"
