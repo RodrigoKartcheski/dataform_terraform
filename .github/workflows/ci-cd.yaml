@@ -35,7 +35,7 @@ jobs:
         run: |
           for file in $(find . -name "*.sqlx"); do
             echo "Validating $file"
-            sqlfluff lint --dialect bigquery "$file" || exit 1
+            sqlfluff lint --dialect bigquery --verbose "$file" || exit 1
           done
 
 
