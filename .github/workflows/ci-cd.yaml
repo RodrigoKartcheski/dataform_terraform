@@ -27,16 +27,20 @@ jobs:
             exit 1
           fi
 
- 
-      - name: Install sqlfluff
-        run: pip install sqlfluff
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
 
-      - name: Validate SQLX files with sqlfluff
+      - name: Install dependencies
         run: |
-          for file in $(find . -name "*.sqlx"); do
-            echo "Validating $file"
-            sqlfluff lint --dialect bigquery --verbose "$file" || exit 1
-          done
+          pip install --upgrade sqlparse
+
+      - name: Run SQL Validation
+        run: |
+          python3 validate_sql.py
+
+
 
 
 
