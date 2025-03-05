@@ -27,14 +27,19 @@ jobs:
             exit 1
           fi
 
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
       - name: Install sqlglot
-        run: pip install sqlglot
+        run: pip install --user sqlglot
 
       - name: Validate SQLX files with sqlglot
         run: |
           for file in $(find . -name "*.sqlx"); do
             echo "Validating $file"
-            cat "$file" | sqlglot transpile --read bigquery --pretty || exit 1
+            cat "$file" | python3 -m sqlglot transpile --read bigquery --pretty || exit 1
           done
 
       - name: Merge ws_teste into development
