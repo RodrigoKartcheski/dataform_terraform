@@ -26,6 +26,30 @@ jobs:
             echo "As palavras 'type:' e 'descriptions:' NÃO foram encontradas nos arquivos sqlx."
             exit 1
           fi
+      - name: Install sqlglot
+        run: pip install --upgrade sqlglot
+
+      - name: Validate SQLX files with sqlglot
+        run: |
+          for file in $(find . -name "*.sqlx"); do
+            echo "Validating $file"
+            cat "$file" | python3 -m sqlglot transpile --read bigquery || exit 1
+          done
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install sqlglot
+        run: pip install --upgrade sqlglot
+
+      - name: Validate SQLX files with sqlglot
+        run: |
+          for file in $(find . -name "*.sqlx"); do
+            echo "Validating $file"
+            cat "$file" | python3 -m sqlglot transpile --read bigquery || exit 1
+          done
+
 
       - name: Merge ws_teste into development
         run: |
