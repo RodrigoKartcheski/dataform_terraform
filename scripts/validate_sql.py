@@ -1,8 +1,9 @@
 import sqlparse
 from sqlparse import tokens
-from sqlparse.sql import Identifier, Select, Where
+from sqlparse.sql import Identifier, IdentifierList, Where
 from sqlparse import parse
 from sqlparse import tokens as T
+from sqlparse.tokens import Keyword, DML
 
 # Função para identificar CTEs
 def get_cte_names(parsed_query):
