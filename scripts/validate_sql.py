@@ -1,55 +1,48 @@
 import sqlparse
-from sqlparse.sql import Identifier, IdentifierList, Where, TokenList
+from sqlparse import parse
+from sqlparse.sql import Identifier, TokenList, Select, CTE, Table, Subquery
 from sqlparse.tokens import Keyword, DML
-import os
 
 # Função para identificar CTEs
 def get_cte_names(parsed_query):
     cte_names = set()
     for stmt in parsed_query:
-        # Procurando pela palavra-chave 'WITH' (indicando CTEs)
-        if stmt.get_type() == 'UNKNOWN' and 'WITH' in str(stmt).upper():
-            # Encontrar todas as expressões de CTE
-            for token in stmt.tokens:
-                if isinstance(token, Keyword) and token.value.upper() == "WITH":
-                    # A CTE pode estar no próximo token
-                    next_token = stmt.token_next(stmt.token_index(token))
-                    if isinstance(next_token, TokenList):
-                        # Adiciona os aliases de CTE
-                        for sub_token in next_token.tokens:
-                            if isinstance(sub_token, Identifier):
-                                cte_names.add(sub_token.get_real_name())
+        for token in stmt.tokens:
+            # Verifica se o token é um CTE (Common Table Expression)
+            if isinstance(token, CTE):
+                cte_names.add(token.get_alias())
     return cte_names
 
-# Função para verificar se a seleção é de um CTE ou subconsulta
+# Função para verificar se a seleção é de um CTE ou de uma subconsulta
 def is_from_cte_or_subquery(select_expression, cte_names):
-    froms = select_expression.find_all(Identifier)
+    froms = select_expression.find_all(Table)
     tables = [x.get_real_name() for x in froms]
-    subqueries = select_expression.find_all(DML)
-
+    subqueries = select_expression.find_all(Subquery)
+    
     # Se há mais de uma tabela ou subconsulta, trata-se de uma subconsulta
     if len(tables) > 1 or len(subqueries) > 0:
         return True
-
+    
     # Se alguma das tabelas está nos CTEs, é um CTE
     if len(set(tables) & set(cte_names)) > 0:
         return True
-
+    
     return False
 
-# Função principal para validação
+# Função para validar a SQL
 def validate_sqlx(file_path):
     with open(file_path, 'r') as file:
         sql = file.read()
-    
-    parsed_query = sqlparse.parse(sql)
+
+    parsed_query = parse(sql)
     cte_names = get_cte_names(parsed_query)
-    
+
     for stmt in parsed_query:
-        if isinstance(stmt, sqlparse.sql.Select):
+        # Verifica se o statement é do tipo SELECT
+        if isinstance(stmt, Select):
             for selection in stmt.tokens:
-                if isinstance(selection, sqlparse.sql.Identifier):
-                    # Se a seleção for '*', vamos verificar
+                if isinstance(selection, Identifier):
+                    # Se a seleção for '*' (SELECT *), vamos verificar
                     if selection.get_real_name() == "*":
                         if not is_from_cte_or_subquery(stmt, cte_names):
                             raise Exception(f"SELECT * only allowed from a CTE in {file_path}.")
