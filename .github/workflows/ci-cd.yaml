@@ -38,8 +38,7 @@ jobs:
 
       - name: Run SQL Validation
         run: |
-          python3 validate_sql.py
-
+          python3 scripts/validate_sql.py
 
 
 
