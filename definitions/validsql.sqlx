@@ -10,5 +10,5 @@ config {
     test: "A description for the test column", 
   }
 }
-/* teste*/
+/* teste demonstrativo*/
 SELECT 1 as t FROM tbl
