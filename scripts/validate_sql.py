@@ -1,62 +1,76 @@
-import sqlparse
-from sqlparse.sql import Identifier, TokenList, Parenthesis
-from sqlparse.tokens import Keyword, DML
-import os
+import re
+from sqlglot import parse_one, exp
 
-# Função para identificar CTEs
-def get_cte_names(parsed_query):
-    cte_names = set()
-    for stmt in parsed_query:
-        for token in stmt.tokens:
-            if isinstance(token, sqlparse.sql.Token) and token.value.lower() == 'with':
-                # Encontramos a palavra-chave "WITH", que é usada para CTEs
-                for subtoken in stmt.tokens:
-                    if isinstance(subtoken, sqlparse.sql.Identifier):
-                        cte_names.add(subtoken.get_real_name())
-    return cte_names
+# Função para procurar a primeira cláusula SQL válida
+def find_sql_clause_start(content, sql_clauses):
+    for i, line in enumerate(content):
+        if any(clause in line.upper() for clause in sql_clauses):
+            return i  # Retorna o índice da linha onde a cláusula SQL foi encontrada
+    raise ValueError("Nenhuma palavra-chave SQL válida encontrada.")
 
-# Função para verificar se a seleção é de um CTE ou de uma subconsulta
-def is_from_cte_or_subquery(select_expression, cte_names):
-    froms = select_expression.find_all(Identifier)
-    tables = [x.get_real_name() for x in froms]
-    subqueries = select_expression.find_all(Parenthesis)
+# Função para validar a sintaxe do bloco `config`
+def validate_config_block(content):
+    config_start = False
+    for line in content:
+        if 'config {' in line:
+            config_start = True
+        if config_start:
+            if '}' in line:
+                return True  # Finaliza o bloco config
+    return False  # Se o bloco não for finalizado corretamente
+
+# Ler o conteúdo do arquivo SQL
+file_path = "validsql.sqlx"  # Supondo que o arquivo está no mesmo diretório que o script
+with open(file_path, 'r') as file:
+    content = file.readlines() # Lê todas as linhas do arquivo
+
+# Definir as palavras-chave SQL para procurar (com base em seu caso)
+sql_clauses = ['WITH', 'SELECT', 'CREATE', 'INSERT', 'UPDATE', 'DELETE', 'ALTER']
+
+# Encontrar o índice da primeira linha que contém uma cláusula SQL válida
+sql_clause_index = find_sql_clause_start(content, sql_clauses)
+
+# Juntar as linhas a partir da cláusula SQL encontrada
+sql = "".join(content[sql_clause_index:])
+
+# Verificar se o bloco config está presente e validado corretamente
+if not validate_config_block(content):
+    raise Exception("Erro: Bloco `config` não foi encontrado ou está mal formatado.")
+
+# Analisando a consulta SQL com sqlglot
+parsed_query = parse_one(sql, dialect="bigquery")
+
+# Identificar todos os nomes de CTEs (Common Table Expressions)
+cte_names = {cte.alias for cte in parsed_query.find_all(exp.CTE)}
+
+# Função para verificar se a seleção vem de uma CTE ou subconsulta
+def is_from_cte_or_subquery(select_expression):
+    # Encontrar todas as tabelas da consulta
+    froms = select_expression.find_all(exp.Table)
+    tables = [x.args.get("this").args.get("this") for x in froms]
     
-    # Se há mais de uma tabela ou subconsulta, trata-se de uma subconsulta
-    if len(tables) > 1 or len(subqueries) > 0:
+    # Encontrar subconsultas
+    subqueries = select_expression.find_all(exp.Subquery)
+    num_subqueries = len([_ for _ in subqueries])
+    
+    # Se a consulta usa mais de uma tabela ou contém subconsultas, retornar True
+    if len(tables) > 1 or num_subqueries > 0:
         return True
     
-    # Se alguma das tabelas está nos CTEs, é um CTE
+    # Verificar se a consulta usa tabelas que estão nas CTEs
     if len(set(tables) & set(cte_names)) > 0:
         return True
     
     return False
 
-# Função para validar a SQL
-def validate_sqlx(file_path):
-    with open(file_path, 'r') as file:
-        sql = file.read()
+# Iterar pelas expressões SELECT e verificar se contém SELECT *
+for select in parsed_query.find_all(exp.Select):
+    for selection in select.args.get("expressions", []):
+        if isinstance(selection, exp.Star) and not is_from_cte_or_subquery(select):
+            raise Exception(
+                "select * is only allowed when selecting from a CTE.",
+                select,
+            )
 
-    parsed_query = sqlparse.parse(sql)
-    cte_names = get_cte_names(parsed_query)
-
-    for stmt in parsed_query:
-        if isinstance(stmt, TokenList):
-            # Verifica se o comando é SELECT
-            if stmt.get_type() == 'SELECT':
-                for selection in stmt.tokens:
-                    if isinstance(selection, Identifier):
-                        # Se a seleção for '*' (SELECT *), vamos verificar
-                        if selection.get_real_name() == "*":
-                            if not is_from_cte_or_subquery(stmt, cte_names):
-                                raise Exception(f"SELECT * only allowed from a CTE in {file_path}.")
-    print(f"File {file_path} passed validation.")
-
-# Rodar a validação para todos os arquivos .sqlx
-def run_validation():
-    for root, dirs, files in os.walk("."):
-        for file in files:
-            if file.endswith(".sqlx"):
-                validate_sqlx(os.path.join(root, file))
-
-if __name__ == "__main__":
-    run_validation()
+# Caso o código chegue até aqui, significa que a verificação passou sem exceções
+print("Consulta válida: 'SELECT *' está sendo usado corretamente.")
