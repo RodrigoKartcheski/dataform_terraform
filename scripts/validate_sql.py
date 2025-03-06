@@ -20,7 +20,7 @@ def validate_config_block(content):
     return False  # Se o bloco não for finalizado corretamente
 
 # Ler o conteúdo do arquivo SQL
-file_path = "validsql.sqlx"  # Supondo que o arquivo está no mesmo diretório que o script
+file_path = "definitions/validsql.sqlx"  # Supondo que o arquivo está no mesmo diretório que o script
 with open(file_path, 'r') as file:
     content = file.readlines() # Lê todas as linhas do arquivo
 
