@@ -27,15 +27,19 @@ jobs:
             exit 1
           fi
 
+      # Configura o Python
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: '3.x'
 
+      # Instala as dependências necessárias, incluindo o sqlglot
       - name: Install dependencies
         run: |
-          pip install --upgrade sqlparse
-
+          pip install --upgrade pip
+          pip install sqlglot
+          
+      # Rodar o script de validação SQL
       - name: Run SQL Validation
         run: |
           python3 scripts/validate_sql.py
