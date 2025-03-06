@@ -11,4 +11,4 @@ config {
   }
 }
 /* teste demonstrativo*/
-SELECT * FROM tbl
+SELECT 1 as t FROM tbl
