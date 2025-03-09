@@ -193,6 +193,7 @@ SELECT
     'SOMETHING' yy
 FROM polls p;
 """
+object_name = "table_new"
 
 aliases = extract_column_aliases(sql_query)
 print(aliases)
